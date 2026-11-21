@@ -1,0 +1,26 @@
+{
+  "domain": "hcalory_ble_modern",
+  "name": "Hcalory BLE Modern",
+  "version": "0.1.0-alpha.1",
+  "codeowners": [
+    "@dirkkuschinsky-cloud"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/dirkkuschinsky-cloud/hcalory-ble-modern",
+  "issue_tracker": "https://github.com/dirkkuschinsky-cloud/hcalory-ble-modern/issues",
+  "dependencies": [
+    "bluetooth_adapters"
+  ],
+  "requirements": [
+    "bleak-retry-connector==4.7.1"
+  ],
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "bluetooth": [
+    {
+      "service_uuid": "0000bd39-0000-1000-8000-00805f9b34fb",
+      "manufacturer_id": 272,
+      "connectable": true
+    }
+  ]
+}

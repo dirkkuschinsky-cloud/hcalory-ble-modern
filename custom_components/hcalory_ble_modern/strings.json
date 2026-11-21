@@ -1,0 +1,40 @@
+{
+  "title": "Hcalory BLE Modern",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect a Hcalory BD39 heater",
+        "description": "The heater must be visible through a BLE adapter or an active ESPHome Bluetooth proxy. Close the phone app before setup. Experimental status-only integration.",
+        "data": {
+          "address": "Bluetooth address"
+        }
+      },
+      "confirm": {
+        "title": "Add heater",
+        "description": "Add the discovered heater for experimental status monitoring?"
+      }
+    },
+    "error": {
+      "invalid_address": "Enter a Bluetooth address in AA:BB:CC:DD:EE:FF format.",
+      "cannot_connect": "No connectable adapter can see the heater. Check power, range and proxy setup.",
+      "not_supported": "The device does not advertise the supported BD39 service."
+    },
+    "abort": {
+      "already_configured": "This heater is already configured.",
+      "not_supported": "This Bluetooth protocol is not supported."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "level": {
+        "name": "Power level"
+      },
+      "state_raw": {
+        "name": "Controller state (raw)"
+      },
+      "mode_raw": {
+        "name": "Controller mode (raw)"
+      }
+    }
+  }
+}

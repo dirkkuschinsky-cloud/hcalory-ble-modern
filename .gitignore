@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+*.zip
+*.log
+*.cfa*
+*bugreport*
+*status-test.json
+.env

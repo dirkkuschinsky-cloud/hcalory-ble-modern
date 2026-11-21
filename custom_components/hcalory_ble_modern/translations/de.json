@@ -1,0 +1,40 @@
+{
+  "title": "Hcalory BLE Modern",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hcalory-BD39-Heizung verbinden",
+        "description": "Die Steuerung muss über einen BLE-Adapter oder aktiven ESPHome-Bluetooth-Proxy erreichbar sein. Handy-App vor der Einrichtung schließen. Experimentelle Integration zur Statusanzeige.",
+        "data": {
+          "address": "Bluetooth-Adresse"
+        }
+      },
+      "confirm": {
+        "title": "Heizung hinzufügen",
+        "description": "Die entdeckte Heizung zur experimentellen Statusanzeige hinzufügen?"
+      }
+    },
+    "error": {
+      "invalid_address": "Bluetooth-Adresse im Format AA:BB:CC:DD:EE:FF eingeben.",
+      "cannot_connect": "Die Heizung ist über keinen verbindungsfähigen Adapter sichtbar. Stromversorgung, Reichweite und Proxy prüfen.",
+      "not_supported": "Das Gerät bietet den unterstützten BD39-Dienst nicht an."
+    },
+    "abort": {
+      "already_configured": "Diese Heizung ist bereits eingerichtet.",
+      "not_supported": "Dieses Bluetooth-Protokoll wird nicht unterstützt."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "level": {
+        "name": "Leistungsstufe"
+      },
+      "state_raw": {
+        "name": "Steuerungszustand (Rohwert)"
+      },
+      "mode_raw": {
+        "name": "Betriebsart (Rohwert)"
+      }
+    }
+  }
+}
