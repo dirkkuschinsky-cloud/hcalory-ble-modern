@@ -65,3 +65,13 @@ class FrameDecoder:
             frames.append(frame)
             del self.buffer[:size]
         return frames
+
+
+def level_command(level: int) -> bytes:
+    """Only emit exact level commands observed in the owner captures."""
+    if isinstance(level, bool) or not isinstance(level, int) or level not in (3, 4):
+        raise ValueError("Only captured test levels 3 and 4 are enabled")
+    return bytes.fromhex({
+        3: "000200010001000607000001030b",
+        4: "000200010001000607000001040c",
+    }[level])

@@ -90,3 +90,47 @@ class TransportTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(BleakError):
             await self.client.poll()
         self.peer.disconnect.assert_awaited_once()
+
+    async def test_level_write_requires_matching_status(self):
+        current = FRAMES[0]
+        original = self.peer.write_gatt_char
+        async def write(uuid, data, response):
+            nonlocal current
+            if data == protocol.POLL:
+                self.peer.writes.append((uuid, data, response))
+                self.peer.callback(None, bytearray(current))
+            else:
+                await original(uuid, data, response)
+                if data == protocol.level_command(4):
+                    current = FRAMES[-1]
+                elif data == protocol.level_command(3):
+                    current = FRAMES[0]
+        self.peer.write_gatt_char = write
+        self.assertEqual((await self.client.set_level(4)).level, 4)
+        self.assertEqual((await self.client.set_level(3)).level, 3)
+        self.assertEqual(sum(x[1] == protocol.level_command(4) for x in self.peer.writes), 1)
+        self.assertEqual(sum(x[1] == protocol.level_command(3) for x in self.peer.writes), 1)
+
+    async def test_unchanged_level_does_not_write(self):
+        self.assertEqual((await self.client.set_level(3)).level, 3)
+        self.assertNotIn(protocol.level_command(3), [x[1] for x in self.peer.writes])
+
+    async def test_unconfirmed_level_fails_and_is_not_retransmitted(self):
+        await self.client.poll()
+        with patch.object(transport.asyncio, 'sleep', AsyncMock()):
+            with self.assertRaises(TimeoutError):
+                await self.client.set_level(4)
+        self.assertEqual(sum(x[1] == protocol.level_command(4) for x in self.peer.writes), 1)
+        self.peer.disconnect.assert_awaited_once()
+
+    async def test_wrong_mode_does_not_write(self):
+        await self.client.poll()
+        with patch.object(self.client, '_request_status', AsyncMock(return_value=protocol.HeaterStatus(133, 1, 25))):
+            with self.assertRaises(ValueError):
+                await self.client.set_level(4)
+        self.assertNotIn(protocol.level_command(4), [x[1] for x in self.peer.writes])
+
+    async def test_invalid_level_rejected_before_connect(self):
+        with self.assertRaises(ValueError):
+            await self.client.set_level(10)
+        self.establish.assert_not_awaited()

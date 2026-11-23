@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.2
+
+- Testregler für die exakt aufgezeichneten Stufenbefehle 3 und 4.
+- Vorabprüfung von laufendem Leistungsstufenbetrieb und Rückmeldeprüfung.
+- Keine automatische Wiederholung von Schreibbefehlen.
+- Statusanzeige aller zehn Stufen über ATOM-Proxy live bestätigt.
+- Installation über Marketplace und Änderungen per Funkfernbedienung bestätigt.
+- Schreibfunktion in Home Assistant noch nicht live geprüft.
+
 ## 0.1.0-alpha.1
 
 - Erste experimentelle Home-Assistant-Integration für BD39/BDF8.

@@ -48,3 +48,13 @@ class ProtocolTests(unittest.TestCase):
     def test_only_initialization_and_poll_commands_exposed(self):
         self.assertEqual(p.HELLO.hex(), "000200010001000a0c000005010000000012")
         self.assertEqual(p.POLL.hex(), "000200010001000e040000090000000000000000000d")
+
+class LevelCommandTests(unittest.TestCase):
+    def test_captured_commands(self):
+        self.assertEqual(p.level_command(3).hex(), '000200010001000607000001030b')
+        self.assertEqual(p.level_command(4).hex(), '000200010001000607000001040c')
+
+    def test_reject_uncaptured_levels_and_invalid_types(self):
+        for value in (0, 1, 2, 5, 10, 11, True, 3.0, '3', None):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                p.level_command(value)

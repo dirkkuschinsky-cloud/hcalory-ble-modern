@@ -1,7 +1,7 @@
 {
   "domain": "hcalory_ble_modern",
   "name": "Hcalory BLE Modern",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "codeowners": [
     "@dirkkuschinsky-cloud"
   ],

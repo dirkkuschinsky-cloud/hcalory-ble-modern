@@ -22,7 +22,7 @@ die Herstellerkennung allein beweisen keine vollständige Modellkompatibilität.
 4. Vollständigen Status abwarten; nachfolgende Abfragen nutzen dieselbe Verbindung.
 
 Das eigenständige Testprogramm verwendete ein Sekundenintervall. Die Integration
-verwendet zunächst fünf Sekunden; dieses Intervall ist noch am Gerät zu testen.
+verwendet fünf Sekunden; die Anzeige wurde inzwischen über den ATOM-Proxy live getestet.
 Die App sendet weitere Zeit-/Konfigurationsnachrichten. Für den 30-Sekunden-Test
 waren diese nicht erforderlich. Daraus folgt keine Garantie für Langzeitbetrieb.
 
@@ -49,7 +49,7 @@ Temperatur und Spannung werden noch nicht interpretiert. Stufenanzeige nur bei
 Modus 2 und Einstellung 1–10; der Wertebereich ist eine Plausibilitätsgrenze,
 keine Bestätigung aller Stufen am Gerät.
 
-## Beobachtete Schreibbefehle, noch nicht in der Integration freigegeben
+## Beobachtete Schreibbefehle, als Testregler 3/4 freigegeben
 
 | Aktion in der Hersteller-App | BDF8-Payload |
 | --- | --- |
@@ -59,6 +59,8 @@ keine Bestätigung aller Stufen am Gerät.
 Die Statusantwort bestätigt beide Änderungen. Es sind absolute Sollwerte,
 keine Plus-/Minus-Befehle. Andere Stufen lassen sich als Hypothese ableiten,
 werden vor ihrer praktischen Prüfung aber nicht angeboten.
+Die Anzeige aller zehn Stufen wurde am 23. November 2026 über den ATOM-Proxy
+bestätigt; dies belegt noch nicht das Schreiben dieser Stufen aus Home Assistant.
 
 ## Datenhygiene
 

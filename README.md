@@ -3,10 +3,10 @@
 Lokale Home-Assistant-Anbindung für neuere Hcalory-Dieselheizungssteuerungen
 mit dem Bluetooth-Dienst **BD39**.
 
-**Status: experimentelle Alpha, zunächst nur Statusanzeige.**
+**Status: experimentelle Alpha mit Statusanzeige und Testregler für Stufen 3 und 4.**
 Die Kommunikation wurde an einer Steuerung mit zehn Leistungsstufen und
-dem Gerätenamen `Heater5069` untersucht. Die Integration selbst wurde noch
-nicht auf einem laufenden Home Assistant oder ESPHome-Proxy getestet.
+dem Gerätenamen `Heater5069` untersucht. Die Statusanzeige wurde inzwischen in Home Assistant über einen M5Stack ATOM Lite
+als ESPHome-Bluetooth-Proxy live getestet. Schreibende Steuerung steht zum Test bereit.
 
 ## Was bereits funktioniert
 
@@ -15,20 +15,26 @@ nicht auf einem laufenden Home Assistant oder ESPHome-Proxy getestet.
 - Leistungsstufe als Sensor; Betriebsart und Zustand als Diagnose-Rohwerte.
 - Vorbereitung für lokale BLE-Adapter und aktive ESPHome-Bluetooth-Proxys
   über die Bluetooth-Verwaltung von Home Assistant.
+- Testregler für die aufgezeichneten absoluten Stufenbefehle 3 und 4, mit Rückmeldeprüfung.
 - Deutsche und englische Oberfläche.
 
 Am Acer mit Intel AX211 wurde eine durchgehende Verbindung mit 30 erfolgreichen
 Statusabfragen in 30 Sekunden getestet. Die Anzeige von Stufe 3 ist bestätigt;
 zusätzliche App-Mitschnitte bestätigen den Wechsel 3 → 4 → 3.
+Am 23. November 2026 wurden alle zehn Stufen über den ATOM-Proxy in Home Assistant
+angezeigt. Änderungen per Funkfernbedienung werden ebenfalls übernommen; bei
+einem Wechsel 1 → 2 wurde eine Verzögerung von etwa zwei Sekunden beobachtet.
+Dies ist ein erster Praxistest, noch kein Langzeitnachweis.
 
-**Noch nicht enthalten:** Start/Stopp, schreibbarer Stufenregler,
+**Noch nicht enthalten:** Start/Stopp, schreibbare Stufen 1–2 und 5–10,
 Thermostat, Lüfterbetrieb, Temperatur-, Spannungs- und Höhenanzeige.
-Die übrigen Leistungsstufen sind noch nicht einzeln geprüft.
+Die Anzeige aller zehn Stufen ist bestätigt; die Schreibbefehle 3 und 4 wurden
+bisher nur in der Hersteller-App beobachtet.
 
 ## Voraussetzungen
 
 - Zielversion: Home Assistant Core **2026.10.4 oder neuer**. Dies ist ein
-  Entwicklungsziel, noch keine bestätigte Kompatibilitätszusage.
+  erste getestete Zielversion; andere Versionen sind noch nicht separat geprüft.
 - Eine Steuerung, die den Dienst `0000bd39-0000-1000-8000-00805f9b34fb`
   und den Kanal `0000bdf8-0000-1000-8000-00805f9b34fb` anbietet.
 - BLE-fähiger Adapter oder aktiver ESPHome-Bluetooth-Proxy in Reichweite.
@@ -58,8 +64,28 @@ Im Thermostatmodus wird die Leistungsstufe als unbekannt angezeigt.
 
 Nach Veröffentlichung kann dieses Repository in HACS als benutzerdefiniertes
 Repository vom Typ **Integration** hinzugefügt werden. `hacs.json` ist vorbereitet.
-Das Projekt ist noch nicht im offiziellen HACS-Verzeichnis gelistet und eine
-HACS-Installation wurde noch nicht praktisch getestet.
+Das Projekt ist noch nicht im offiziellen Verzeichnis gelistet. Die Installation
+über „Marketplace → Über Link hinzufügen“ wurde am 23. November 2026 getestet.
+
+## Testregler in 0.1.0-alpha.2
+
+Nach dem Update Home Assistant neu starten. Am vorhandenen Gerät erscheint
+**„Leistungsstufe einstellen (Test 3–4)“**. Die bisherige Sensoranzeige bleibt erhalten.
+
+1. Heizung am Bedienpanel auf Stufe 3 im laufenden Leistungsstufenbetrieb stellen.
+2. In Home Assistant den Testregler auf 4 stellen; tatsächliche Änderung am
+   Bedienpanel und am separaten Leistungssensor prüfen.
+3. Danach über den Testregler auf 3 zurückstellen und erneut vergleichen.
+
+Der Regler sendet nur die exakt mitgeschnittenen Befehle 3 und 4. Vor dem
+Schreiben wird der aktuelle Zustand abgefragt. Nur bei Zustand 133 und Modus 2
+wird geschrieben; Start und Moduswechsel werden nicht ausgelöst. Es gibt keine
+optimistische Bestätigung. Nach dem einmaligen Schreibbefehl wird die passende
+Statusantwort bis zu fünfmal angefragt. Bei fehlender Bestätigung erscheint ein
+Fehler; der Befehl wird nicht automatisch erneut gesendet. Die Heizung könnte
+bei einem Verbindungsfehler trotzdem bereits umgestellt haben – am Bedienpanel
+prüfen. Steht die Heizung außerhalb von 3/4, bleibt der Testregler zunächst
+unbekannt, während der separate Sensor weiterhin die tatsächliche Stufe zeigt.
 
 ## Entwicklung und Nachweise
 
@@ -79,9 +105,10 @@ Zeitstempel.
 
 ## Nächste Schritte
 
-- [ ] Statusanzeige in Home Assistant mit ATOM Lite testen.
+- [x] Statusanzeige in Home Assistant mit ATOM Lite testen.
 - [ ] Wiederverbindung und längeren Betrieb mit Proxy testen.
-- [ ] Stufen 1–10 prüfen und erst danach Steuerung freigeben.
+- [x] Anzeige aller Stufen 1–10 prüfen.
+- [ ] Testregler 3 → 4 → 3 in Home Assistant prüfen; danach weitere Schreibstufen freigeben.
 - [ ] Start, Stopp und Abkühlzustände gezielt aufzeichnen.
 - [ ] Temperaturen, Spannung und weitere Felder mit App-Werten abgleichen.
 

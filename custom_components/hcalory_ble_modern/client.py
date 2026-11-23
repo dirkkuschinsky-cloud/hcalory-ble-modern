@@ -1,11 +1,11 @@
-"""Status-only transport using Home Assistant's local or remote BLE device."""
+"""Status and confirmed test-level transport using Home Assistant's local or remote BLE device."""
 import asyncio
 from collections.abc import Callable
 
 from bleak import BleakClient, BleakError
 from bleak_retry_connector import BleakClientWithServiceCache, establish_connection
 
-from .protocol import CHANNEL_UUID, HELLO, POLL, FrameDecoder, HeaterStatus, parse_status
+from .protocol import CHANNEL_UUID, HELLO, POLL, FrameDecoder, HeaterStatus, parse_status, level_command
 
 
 class HeaterClient:
@@ -53,15 +53,51 @@ class HeaterClient:
             await self._disconnect()
             raise
 
+    async def _request_status(self) -> HeaterStatus:
+        self.waiter = asyncio.get_running_loop().create_future()
+        try:
+            await self.client.write_gatt_char(CHANNEL_UUID, POLL, response=False)
+            return await asyncio.wait_for(self.waiter, timeout=10)
+        finally:
+            if self.waiter:
+                if not self.waiter.done():
+                    self.waiter.cancel()
+                elif not self.waiter.cancelled():
+                    self.waiter.exception()
+            self.waiter = None
+
+    async def set_level(self, level: int) -> HeaterStatus:
+        """Write once, then require a matching device response; no optimistic state."""
+        command = level_command(level)
+        async with self.lock:
+            try:
+                async with asyncio.timeout(45):
+                    await self._connect()
+                    before = await self._request_status()
+                    if before.state_raw != 133 or before.mode_raw != 2:
+                        raise ValueError("Level changes require a running heater in power-level mode")
+                    if before.level == level:
+                        return before
+                    await self.client.write_gatt_char(CHANNEL_UUID, command, response=False)
+                    for _ in range(5):
+                        await asyncio.sleep(1)
+                        after = await self._request_status()
+                        if after.mode_raw != 2 or after.state_raw != 133:
+                            raise ValueError("Heater left running power-level mode during confirmation")
+                        if after.level == level:
+                            return after
+                    raise TimeoutError("Requested level was not confirmed by the heater")
+            except BaseException:
+                await self._disconnect()
+                raise
+
     async def poll(self) -> HeaterStatus:
         """Request a complete new status, or fail within a bounded timeout."""
         async with self.lock:
             try:
                 async with asyncio.timeout(45):
                     await self._connect()
-                    self.waiter = asyncio.get_running_loop().create_future()
-                    await self.client.write_gatt_char(CHANNEL_UUID, POLL, response=False)
-                    return await asyncio.wait_for(self.waiter, timeout=10)
+                    return await self._request_status()
             except BaseException:
                 await self._disconnect()
                 raise

@@ -35,6 +35,11 @@
       "mode_raw": {
         "name": "Betriebsart (Rohwert)"
       }
+    },
+    "number": {
+      "test_level": {
+        "name": "Leistungsstufe einstellen (Test 3–4)"
+      }
     }
   }
 }
