@@ -54,7 +54,17 @@ class LevelCommandTests(unittest.TestCase):
         self.assertEqual(p.level_command(3).hex(), '000200010001000607000001030b')
         self.assertEqual(p.level_command(4).hex(), '000200010001000607000001040c')
 
-    def test_reject_uncaptured_levels_and_invalid_types(self):
-        for value in (0, 1, 2, 5, 10, 11, True, 3.0, '3', None):
+    def test_reject_invalid_levels_and_types(self):
+        for value in (-1, 0, 11, 255, True, 3.0, '3', None):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 p.level_command(value)
+
+    def test_all_levels_have_expected_payload_and_checksum(self):
+        for level in range(1, 11):
+            with self.subTest(level=level):
+                command = p.level_command(level)
+                self.assertEqual(len(command), 14)
+                self.assertEqual(command[:12].hex(), '000200010001000607000001')
+                self.assertEqual(command[12], level)
+                self.assertEqual(command[13], 8 + level)
+                self.assertEqual(sum(command[8:-1]) % 256, command[-1])

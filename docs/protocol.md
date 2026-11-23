@@ -49,7 +49,7 @@ Temperatur und Spannung werden noch nicht interpretiert. Stufenanzeige nur bei
 Modus 2 und Einstellung 1–10; der Wertebereich ist eine Plausibilitätsgrenze,
 keine Bestätigung aller Stufen am Gerät.
 
-## Beobachtete Schreibbefehle, als Testregler 3/4 freigegeben
+## Absolute Leistungsstufenbefehle
 
 | Aktion in der Hersteller-App | BDF8-Payload |
 | --- | --- |
@@ -57,10 +57,14 @@ keine Bestätigung aller Stufen am Gerät.
 | Stufe 3 | `000200010001000607000001030b` |
 
 Die Statusantwort bestätigt beide Änderungen. Es sind absolute Sollwerte,
-keine Plus-/Minus-Befehle. Andere Stufen lassen sich als Hypothese ableiten,
-werden vor ihrer praktischen Prüfung aber nicht angeboten.
-Die Anzeige aller zehn Stufen wurde am 23. November 2026 über den ATOM-Proxy
-bestätigt; dies belegt noch nicht das Schreiben dieser Stufen aus Home Assistant.
+keine Plus-/Minus-Befehle. Das Schreiben 3 → 4 → 3 wurde am 23. November 2026
+zusätzlich aus Home Assistant über den ATOM-Proxy live bestätigt.
+
+Ab Alpha.3 werden Stufen 1–10 experimentell angeboten. Das abgeleitete Format ist
+`000200010001000607000001 LL CC`, wobei `LL` die Stufe und `CC` die Summe
+ab Offset 8 modulo 256 ist, hier `8 + LL`. Die generierten Pakete für 3 und 4
+entsprechen exakt den Originalmitschnitten. Die übrigen Schreibstufen sind
+noch nicht live bestätigt. Die Anzeige aller zehn Stufen wurde bereits geprüft.
 
 ## Datenhygiene
 

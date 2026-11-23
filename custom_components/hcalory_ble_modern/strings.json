@@ -4,14 +4,14 @@
     "step": {
       "user": {
         "title": "Connect a Hcalory BD39 heater",
-        "description": "The heater must be visible through a BLE adapter or an active ESPHome Bluetooth proxy. Close the phone app before setup. Experimental status-only integration.",
+        "description": "The heater must be visible through a BLE adapter or an active ESPHome Bluetooth proxy. Close the phone app before setup. Experimental status monitoring and power-level control.",
         "data": {
           "address": "Bluetooth address"
         }
       },
       "confirm": {
         "title": "Add heater",
-        "description": "Add the discovered heater for experimental status monitoring?"
+        "description": "Add the discovered heater for experimental status monitoring and power-level control?"
       }
     },
     "error": {
@@ -38,7 +38,7 @@
     },
     "number": {
       "test_level": {
-        "name": "Power level (test 3–4)"
+        "name": "Set power level"
       }
     }
   }

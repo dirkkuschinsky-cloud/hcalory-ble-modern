@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.0-alpha.3
+
+- Leistungsregler von 3–4 auf 1–10 erweitert, bestehende Entitätskennung erhalten.
+- Zusätzliche Befehle aus bestätigtem Paketformat und Prüfsumme abgeleitet.
+- Rückmeldeprüfung und einmaliges Schreiben bleiben erhalten.
+- Schreiben 3 → 4 → 3 über Home Assistant/ATOM live bestätigt.
+- Zusätzliche Schreibstufen stehen zum Live-Test bereit.
+
 ## 0.1.0-alpha.2
 
 - Testregler für die exakt aufgezeichneten Stufenbefehle 3 und 4.

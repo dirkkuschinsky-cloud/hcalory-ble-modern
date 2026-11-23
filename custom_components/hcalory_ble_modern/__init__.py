@@ -1,4 +1,4 @@
-"""Experimental Hcalory BD39 integration: status only."""
+"""Experimental Hcalory BD39 integration with confirmed level control."""
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant

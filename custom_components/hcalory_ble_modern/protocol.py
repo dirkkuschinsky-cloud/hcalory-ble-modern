@@ -68,10 +68,8 @@ class FrameDecoder:
 
 
 def level_command(level: int) -> bytes:
-    """Only emit exact level commands observed in the owner captures."""
-    if isinstance(level, bool) or not isinstance(level, int) or level not in (3, 4):
-        raise ValueError("Only captured test levels 3 and 4 are enabled")
-    return bytes.fromhex({
-        3: "000200010001000607000001030b",
-        4: "000200010001000607000001040c",
-    }[level])
+    """Build an absolute level command; 3/4 match captured reference packets."""
+    if isinstance(level, bool) or not isinstance(level, int) or not 1 <= level <= 10:
+        raise ValueError("Power level must be an integer from 1 to 10")
+    payload = bytes.fromhex("000200010001000607000001") + bytes([level])
+    return payload + bytes([sum(payload[8:]) % 256])

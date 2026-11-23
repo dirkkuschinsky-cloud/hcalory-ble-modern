@@ -132,5 +132,24 @@ class TransportTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_invalid_level_rejected_before_connect(self):
         with self.assertRaises(ValueError):
-            await self.client.set_level(10)
+            await self.client.set_level(11)
         self.establish.assert_not_awaited()
+
+    async def test_all_levels_are_confirmed_from_device_responses(self):
+        current = 3
+        original = self.peer.write_gatt_char
+        async def write(uuid, data, response):
+            nonlocal current
+            self.peer.writes.append((uuid, data, response))
+            if data == protocol.POLL:
+                frame = bytearray(FRAMES[0])
+                frame[22] = current
+                frame[-1] = sum(frame[8:-1]) % 256
+                self.peer.callback(None, frame)
+            elif data != protocol.HELLO:
+                current = data[12]
+        self.peer.write_gatt_char = write
+        with patch.object(transport.asyncio, 'sleep', AsyncMock()):
+            for level in (1, 10, 2, 9, 3, 8, 4, 7, 5, 6):
+                with self.subTest(level=level):
+                    self.assertEqual((await self.client.set_level(level)).level, level)
