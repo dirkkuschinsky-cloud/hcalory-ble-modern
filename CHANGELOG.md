@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-alpha.5
+
+- Initialisierungsfehler der Start-/Stopp-Tasten behoben: interne Zielvariable
+  kollidierte mit Home Assistants schreibgeschützter Eigenschaft `enabled`.
+- Regressionstests für Tastenerstellung, Verfügbarkeit und Befehlsweitergabe.
+
 ## 0.1.0-alpha.4
 
 - Start-/Stopp-Tasten aus vollständigen App-Mitschnitten ergänzt.

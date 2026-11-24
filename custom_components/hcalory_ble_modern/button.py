@@ -20,7 +20,7 @@ class HeaterPowerButton(CoordinatorEntity, ButtonEntity):
 
     def __init__(self, coordinator, enabled: bool):
         super().__init__(coordinator)
-        self.enabled = enabled
+        self._power_target = enabled
         action = "start" if enabled else "stop"
         self._attr_translation_key = action
         self._attr_icon = "mdi:play" if enabled else "mdi:stop"
@@ -32,12 +32,12 @@ class HeaterPowerButton(CoordinatorEntity, ButtonEntity):
         data = self.coordinator.data
         return bool(
             super().available and data
-            and (data.can_start if self.enabled else data.can_stop)
+            and (data.can_start if self._power_target else data.can_stop)
         )
 
     async def async_press(self) -> None:
         try:
-            await self.coordinator.heater.set_power(self.enabled)
+            await self.coordinator.heater.set_power(self._power_target)
         except (BleakError, TimeoutError, ValueError) as err:
             await self.coordinator.async_request_refresh()
             raise HomeAssistantError(f"Heizbefehl nicht bestätigt: {err}") from err

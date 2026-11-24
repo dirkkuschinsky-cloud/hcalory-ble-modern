@@ -90,8 +90,9 @@ erscheint ein Fehler; der Befehl wird nicht automatisch erneut gesendet.
 Die Heizung könnte bei einem Verbindungsfehler trotzdem bereits umgestellt
 haben – am Bedienpanel prüfen.
 
-## Start/Stopp und Zustandsanzeige ab 0.1.0-alpha.4
+## Start/Stopp und Zustandsanzeige ab 0.1.0-alpha.5
 
+Alpha.5 behebt die fehlenden Start-/Stopp-Tasten der Alpha.4.
 Nach dem Update Home Assistant neu starten und eine für Mitschnitte deaktivierte
 Integration wieder aktivieren. Die Hersteller-App schließen, damit der Proxy
 wieder verbinden kann. Am vorhandenen Gerät erscheinen:

@@ -6,7 +6,7 @@ async def async_get_config_entry_diagnostics(hass, entry):
     coordinator = entry.runtime_data
     client = coordinator.heater.client
     return {
-        "integration_version": "0.1.0-alpha.4",
+        "integration_version": "0.1.0-alpha.5",
         "protocol": "BD39/BDF8",
         "last_update_success": coordinator.last_update_success,
         "connected": bool(client and client.is_connected),
