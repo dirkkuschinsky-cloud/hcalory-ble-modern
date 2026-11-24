@@ -4,14 +4,14 @@
     "step": {
       "user": {
         "title": "Connect a Hcalory BD39 heater",
-        "description": "The heater must be visible through a BLE adapter or an active ESPHome Bluetooth proxy. Close the phone app before setup. Experimental status monitoring and power-level control.",
+        "description": "The heater must be visible through a BLE adapter or an active ESPHome Bluetooth proxy. Close the phone app before setup. Experimental status monitoring, power-level control and start/stop.",
         "data": {
           "address": "Bluetooth address"
         }
       },
       "confirm": {
         "title": "Add heater",
-        "description": "Add the discovered heater for experimental status monitoring and power-level control?"
+        "description": "Add the discovered heater for experimental status monitoring, power-level control and start/stop?"
       }
     },
     "error": {
@@ -34,11 +34,29 @@
       },
       "mode_raw": {
         "name": "Controller mode (raw)"
+      },
+      "state": {
+        "name": "Heater state",
+        "state": {
+          "off": "Off",
+          "starting": "Starting",
+          "running": "Running",
+          "cooling": "Cooling down",
+          "unknown_state": "Unrecognized state"
+        }
       }
     },
     "number": {
       "test_level": {
         "name": "Set power level"
+      }
+    },
+    "button": {
+      "start": {
+        "name": "Start heater"
+      },
+      "stop": {
+        "name": "Stop heater"
       }
     }
   }

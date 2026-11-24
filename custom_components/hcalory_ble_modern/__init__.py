@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 
 from .coordinator import HeaterCoordinator
 
-PLATFORMS = [Platform.SENSOR, Platform.NUMBER]
+PLATFORMS = [Platform.SENSOR, Platform.NUMBER, Platform.BUTTON]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

@@ -6,6 +6,7 @@ from bleak import BleakClient, BleakError
 from bleak_retry_connector import BleakClientWithServiceCache, establish_connection
 
 from .protocol import CHANNEL_UUID, HELLO, POLL, FrameDecoder, HeaterStatus, parse_status, level_command
+from .protocol import START, STOP
 
 
 class HeaterClient:
@@ -87,6 +88,45 @@ class HeaterClient:
                         if after.level == level:
                             return after
                     raise TimeoutError("Requested level was not confirmed by the heater")
+            except BaseException:
+                await self._disconnect()
+                raise
+
+    async def set_power(self, enabled: bool) -> HeaterStatus:
+        """Send one captured power command and confirm entry into its sequence.
+
+        Acceptance is not completion of ignition/cooling. Normal polls follow
+        the remaining transitions. Never replay a power write after reconnect.
+        """
+        if not isinstance(enabled, bool):
+            raise ValueError("Power target must be a boolean")
+        async with self.lock:
+            try:
+                async with asyncio.timeout(45):
+                    await self._connect()
+                    before = await self._request_status()
+                    if enabled:
+                        if before.state in ("starting", "running"):
+                            return before
+                        if not before.can_start:
+                            raise ValueError("Start requires confirmed off state; cooling cannot be interrupted")
+                    else:
+                        if before.state in ("cooling", "off"):
+                            return before
+                        if not before.can_stop:
+                            raise ValueError("Stop is currently supported only from confirmed running state")
+                    await self.client.write_gatt_char(
+                        CHANNEL_UUID, START if enabled else STOP, response=False,
+                    )
+                    accepted = {"starting", "running"} if enabled else {"cooling", "off"}
+                    for _ in range(5):
+                        await asyncio.sleep(1)
+                        after = await self._request_status()
+                        if after.state in accepted:
+                            return after
+                        if after.state == "unknown_state":
+                            raise ValueError("Heater reported an unrecognized state after power command")
+                    raise TimeoutError("Power command was not confirmed; check the heater before retrying")
             except BaseException:
                 await self._disconnect()
                 raise

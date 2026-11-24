@@ -1,11 +1,16 @@
 """Expose only established protocol fields."""
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorEntityDescription
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
+from .protocol import STATE_OPTIONS
 
 DESCRIPTIONS = (
+    SensorEntityDescription(
+        key="state", translation_key="state", icon="mdi:radiator",
+        device_class=SensorDeviceClass.ENUM, options=STATE_OPTIONS,
+    ),
     SensorEntityDescription(key="level", translation_key="level", icon="mdi:fire"),
     SensorEntityDescription(key="state_raw", translation_key="state_raw", entity_category=EntityCategory.DIAGNOSTIC),
     SensorEntityDescription(key="mode_raw", translation_key="mode_raw", entity_category=EntityCategory.DIAGNOSTIC),

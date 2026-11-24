@@ -8,6 +8,11 @@ SERVICE_UUID = "0000bd39-0000-1000-8000-00805f9b34fb"
 CHANNEL_UUID = "0000bdf8-0000-1000-8000-00805f9b34fb"
 HELLO = bytes.fromhex("000200010001000a0c000005010000000012")
 POLL = bytes.fromhex("000200010001000e040000090000000000000000000d")
+START = bytes.fromhex("000200010001000e040000090000000000000000020f")
+STOP = bytes.fromhex("000200010001000e040000090000000000000000010e")
+STARTING_STATES = frozenset({128, 129, 131, 135})
+COOLING_STATES = frozenset({68, 69, 67, 65})
+STATE_OPTIONS = ["off", "starting", "running", "cooling", "unknown_state"]
 PREFIXES = (bytes.fromhex("000100010001"), bytes.fromhex("000300010001"))
 
 
@@ -18,6 +23,28 @@ class HeaterStatus:
     state_raw: int
     mode_raw: int
     setting_raw: int
+
+    @property
+    def state(self) -> str:
+        """Group only observed states; unknown codes must never mean off."""
+        if self.state_raw == 0:
+            return "off"
+        if self.state_raw in STARTING_STATES:
+            return "starting"
+        if self.state_raw == 133:
+            return "running"
+        if self.state_raw in COOLING_STATES:
+            return "cooling"
+        return "unknown_state"
+
+    @property
+    def can_start(self) -> bool:
+        return self.state_raw == 0
+
+    @property
+    def can_stop(self) -> bool:
+        # Stopping during ignition has not been captured/tested yet.
+        return self.state_raw == 133
 
     @property
     def level(self) -> int | None:

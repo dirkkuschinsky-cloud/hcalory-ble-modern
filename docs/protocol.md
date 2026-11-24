@@ -41,13 +41,13 @@ der Protokollanalyse separat zusammengesetzt.
 
 | Offset, nullbasiert | Bedeutung | Nachweis |
 | --- | --- | --- |
-| 20 | Zustands-Rohwert | `0x85` bei laufender Heizung beobachtet; andere Werte ungeprüft |
+| 20 | Zustands-Rohwert | Zustandsfolgen für Start, Betrieb, Abkühlen und Aus aufgezeichnet |
 | 21 | Betriebsart-Rohwert | `0x02` bei Leistungsstufenbetrieb; andere Modi noch nicht live geprüft |
 | 22 | Einstellung | `03 → 04 → 03` passend zur App-Bedienung |
 
 Temperatur und Spannung werden noch nicht interpretiert. Stufenanzeige nur bei
 Modus 2 und Einstellung 1–10; der Wertebereich ist eine Plausibilitätsgrenze,
-keine Bestätigung aller Stufen am Gerät.
+die Anzeige und Steuerung aller Stufen wurden inzwischen live bestätigt.
 
 ## Absolute Leistungsstufenbefehle
 
@@ -63,8 +63,46 @@ zusätzlich aus Home Assistant über den ATOM-Proxy live bestätigt.
 Ab Alpha.3 werden Stufen 1–10 experimentell angeboten. Das abgeleitete Format ist
 `000200010001000607000001 LL CC`, wobei `LL` die Stufe und `CC` die Summe
 ab Offset 8 modulo 256 ist, hier `8 + LL`. Die generierten Pakete für 3 und 4
-entsprechen exakt den Originalmitschnitten. Die übrigen Schreibstufen sind
-noch nicht live bestätigt. Die Anzeige aller zehn Stufen wurde bereits geprüft.
+entsprechen exakt den Originalmitschnitten. Alle zehn Schreibstufen sowie direkte Sprünge (unter anderem 10 → 3) wurden
+am 23. November 2026 live aus Home Assistant über den ATOM-Proxy bestätigt.
+
+## Start und Stopp (App-Mitschnitte vom 24. November 2026)
+
+BDF8-Payloads mit Schreibtyp ohne Antwort:
+
+| Aktion | Bestätigtes Paket |
+| --- | --- |
+| Start | `000200010001000e040000090000000000000000020f` |
+| Stopp | `000200010001000e040000090000000000000000010e` |
+
+Beobachtete Folgen an Statusoffset 20:
+
+- Start: `0 → 128 → 129 → 131 → 135 → 133`.
+- Stopp: `133 → 68 → 69 → 67 → 65 → 0`.
+
+Die Anlaufwerte 128/129/131/135 werden gemeinsam als **Startet** angezeigt.
+Die Zwischenwerte 68/69/67/65 werden gemeinsam als **Kühlt ab** angezeigt.
+Es wird keine präzisere Bedeutung einzelner Phasen behauptet. 133 ist
+**Heizbetrieb**, 0 ist **Aus**. Andere Werte bleiben **Unbekannter Zustand**.
+
+Der mitgeschnittene Start ging von Modus 0 / Einstellung 0 in Modus 2 /
+Stufe 1 über. Es wird kein zusätzlicher Stufen- oder Modusbefehl beim Start
+übertragen. Eine Zusage zum Verhalten nach anderen früheren Einstellungen
+ist daraus nicht ableitbar.
+
+Die Starttaste wird nur bei Zustand 0 freigegeben. Stopp zunächst nur bei 133:
+Ein Abbruch der Zündung wurde nicht beobachtet. Der Client prüft vor jedem
+Schreibbefehl erneut den aktuellen Status; die Oberflächenfreigabe allein
+ist keine Autorisierung zum Überspringen dieser Zustandsprüfung.
+
+Eine Bestätigung des Beginns der Start-/Abkühlfolge genügt für die Befehlsannahme.
+Die vollständige Sequenz läuft weiter, und die Integration zeigt ihren aktuellen
+Zustand an. Ein Verbindungsfehler darf keine automatische erneute Zündung
+auslösen. Deshalb wird der Schreibbefehl nicht automatisch wiederholt.
+
+Die Anwendungspakete der Zustandsfolgen liegen als Testfixtures ohne
+Bluetooth-Adressen und Zeitstempel vor. Das sind neue Framebeispiele mit anderen
+Temperaturen als die älteren Stufenfixtures; keine neuen Messwertinterpretationen.
 
 ## Datenhygiene
 

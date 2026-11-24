@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.0-alpha.4
+
+- Start-/Stopp-Tasten aus vollständigen App-Mitschnitten ergänzt.
+- Zustandsanzeige Aus / Startet / Heizbetrieb / Kühlt ab / Unbekannter Zustand.
+- Start während Abkühlung gesperrt; Befehle mit aktueller Zustandsprüfung.
+- Kein automatisches Wiederholen von Start-/Stopp-Schreibbefehlen.
+- Befehlsannahme von vollständigem Start/Nachlauf getrennt.
+- Neue Regressionstests mit aufgezeichneten Zustandsfolgen.
+- Schreiben aller Stufen 1–10 samt Sprüngen inzwischen live bestätigt.
+- Start/Stopp aus Home Assistant noch nicht live geprüft.
+
 ## 0.1.0-alpha.3
 
 - Leistungsregler von 3–4 auf 1–10 erweitert, bestehende Entitätskennung erhalten.

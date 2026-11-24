@@ -4,14 +4,14 @@
     "step": {
       "user": {
         "title": "Hcalory-BD39-Heizung verbinden",
-        "description": "Die Steuerung muss über einen BLE-Adapter oder aktiven ESPHome-Bluetooth-Proxy erreichbar sein. Handy-App vor der Einrichtung schließen. Experimentelle Statusanzeige und Leistungsstufensteuerung.",
+        "description": "Die Steuerung muss über einen BLE-Adapter oder aktiven ESPHome-Bluetooth-Proxy erreichbar sein. Handy-App vor der Einrichtung schließen. Experimentelle Statusanzeige, Leistungsstufensteuerung und Start/Stopp.",
         "data": {
           "address": "Bluetooth-Adresse"
         }
       },
       "confirm": {
         "title": "Heizung hinzufügen",
-        "description": "Die entdeckte Heizung zur experimentellen Statusanzeige und Leistungsstufensteuerung hinzufügen?"
+        "description": "Die entdeckte Heizung zur experimentellen Statusanzeige, Leistungsstufensteuerung und Start/Stopp hinzufügen?"
       }
     },
     "error": {
@@ -34,11 +34,29 @@
       },
       "mode_raw": {
         "name": "Betriebsart (Rohwert)"
+      },
+      "state": {
+        "name": "Heizungszustand",
+        "state": {
+          "off": "Aus",
+          "starting": "Startet",
+          "running": "Heizbetrieb",
+          "cooling": "Kühlt ab",
+          "unknown_state": "Unbekannter Zustand"
+        }
       }
     },
     "number": {
       "test_level": {
         "name": "Leistungsstufe einstellen"
+      }
+    },
+    "button": {
+      "start": {
+        "name": "Heizung starten"
+      },
+      "stop": {
+        "name": "Heizung stoppen"
       }
     }
   }

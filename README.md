@@ -3,17 +3,19 @@
 Lokale Home-Assistant-Anbindung für neuere Hcalory-Dieselheizungssteuerungen
 mit dem Bluetooth-Dienst **BD39**.
 
-**Status: experimentelle Alpha mit Statusanzeige und Leistungsregler für Stufen 1–10.**
+**Status: experimentelle Alpha mit Leistungsregler 1–10, Start/Stopp und Zustandsanzeige.**
 Die Kommunikation wurde an einer Steuerung mit zehn Leistungsstufen und
 dem Gerätenamen `Heater5069` untersucht. Die Statusanzeige wurde inzwischen in Home Assistant über einen M5Stack ATOM Lite
-als ESPHome-Bluetooth-Proxy live getestet. Die Steuerung 3 → 4 → 3 wurde ebenfalls live bestätigt. Zusätzliche Schreibstufen
-1–2 und 5–10 stehen mit Version 0.1.0-alpha.3 zum Test bereit.
+als ESPHome-Bluetooth-Proxy live getestet. Die Anzeige und Steuerung aller zehn Stufen sind live bestätigt,
+einschließlich direkter Sprünge wie 10 → 3. Start/Stopp stehen mit Alpha.4
+auf Grundlage vollständiger App-Mitschnitte zum Home-Assistant-Test bereit.
 
 ## Was bereits funktioniert
 
 - Erkennung über BD39 und Herstellerkennung `0x0110`.
 - Initialisierung, Statusabfrage und Auswertung vollständiger Antwortpakete.
-- Leistungsstufe als Sensor; Betriebsart und Zustand als Diagnose-Rohwerte.
+- Leistungsstufe und verständlicher Heizungszustand als Sensoren; Diagnose-Rohwerte bleiben erhalten.
+- Start-/Stopp-Tasten mit Rückmeldeprüfung und Startsperre während des Abkühlens.
 - Vorbereitung für lokale BLE-Adapter und aktive ESPHome-Bluetooth-Proxys
   über die Bluetooth-Verwaltung von Home Assistant.
 - Leistungsregler 1–10 mit Rückmeldeprüfung, auf Grundlage der bestätigten Befehle 3 und 4.
@@ -27,15 +29,14 @@ angezeigt. Änderungen per Funkfernbedienung werden ebenfalls übernommen; bei
 einem Wechsel 1 → 2 wurde eine Verzögerung von etwa zwei Sekunden beobachtet.
 Dies ist ein erster Praxistest, noch kein Langzeitnachweis.
 
-**Noch nicht enthalten:** Start/Stopp,
+**Noch nicht enthalten:**
 Thermostat, Lüfterbetrieb, Temperatur-, Spannungs- und Höhenanzeige.
-Die Anzeige aller zehn Stufen und das Schreiben von 3 und 4 aus Home Assistant
-sind bestätigt. Weitere Schreibstufen sind aus dem Paketformat abgeleitet,
-aber noch nicht einzeln live bestätigt.
+Die Leistungsregelung ist an einer Steuerung geprüft. Die neuen Start-/Stopp-Tasten
+sind noch nicht live aus Home Assistant getestet.
 
 ## Voraussetzungen
 
-- Zielversion: Home Assistant Core **2026.10.4 oder neuer**. Dies ist ein
+- Zielversion: Home Assistant Core **2026.10.4 oder neuer**. Dies ist die
   erste getestete Zielversion; andere Versionen sind noch nicht separat geprüft.
 - Eine Steuerung, die den Dienst `0000bd39-0000-1000-8000-00805f9b34fb`
   und den Kanal `0000bdf8-0000-1000-8000-00805f9b34fb` anbietet.
@@ -69,7 +70,7 @@ Repository vom Typ **Integration** hinzugefügt werden. `hacs.json` ist vorberei
 Das Projekt ist noch nicht im offiziellen Verzeichnis gelistet. Die Installation
 über „Marketplace → Über Link hinzufügen“ wurde am 23. November 2026 getestet.
 
-## Leistungsregler in 0.1.0-alpha.3
+## Leistungsregler
 
 Nach dem Update Home Assistant neu starten. Am vorhandenen Gerät erscheint
 **„Leistungsstufe einstellen“** mit dem Bereich 1–10. Die bisherige Entität wird
@@ -88,6 +89,37 @@ die passende Statusantwort bis zu fünfmal angefragt. Bei fehlender Bestätigung
 erscheint ein Fehler; der Befehl wird nicht automatisch erneut gesendet.
 Die Heizung könnte bei einem Verbindungsfehler trotzdem bereits umgestellt
 haben – am Bedienpanel prüfen.
+
+## Start/Stopp und Zustandsanzeige ab 0.1.0-alpha.4
+
+Nach dem Update Home Assistant neu starten und eine für Mitschnitte deaktivierte
+Integration wieder aktivieren. Die Hersteller-App schließen, damit der Proxy
+wieder verbinden kann. Am vorhandenen Gerät erscheinen:
+
+- **Heizung starten**: nur bei bestätigtem Zustand **Aus** verfügbar.
+- **Heizung stoppen**: zunächst nur bei bestätigtem **Heizbetrieb** verfügbar.
+- **Heizungszustand**: **Aus**, **Startet**, **Heizbetrieb**, **Kühlt ab** oder
+  **Unbekannter Zustand**.
+
+Nach Start/Stopp wird auf die Rückmeldung gewartet, dass die zugehörige Sequenz
+begonnen hat. Der Vorgang muss dafür noch nicht abgeschlossen sein. Während
+**Startet** und **Kühlt ab** bleiben die Leistungsregelung und die beiden Tasten
+gesperrt. Der Zustand wird über die normalen Statusabfragen weiter aktualisiert.
+Ein fehlender Bluetooth-Kontakt macht die Entitäten nicht verfügbar; er bedeutet
+niemals, dass die Heizung aus ist. Unbekannte Zustandswerte gelten ebenfalls
+nicht als aus und geben den Startknopf nicht frei.
+
+Ein Heizbefehl wird nur einmal gesendet und nach einem Verbindungsabbruch nicht
+automatisch wiederholt. Bei unklarer Bestätigung den tatsächlichen Zustand am
+Gerät prüfen. Die Tasten schalten nicht die Stromversorgung: Die Heizung führt
+ihren Nachlauf selbst aus. Stopp während der Startphase ist noch nicht angeboten,
+weil hierfür kein Mitschnitt vorliegt. Die normale Gerätebedienung bleibt verfügbar.
+
+Erster Home-Assistant-Test: Im Heizbetrieb **Heizung stoppen** drücken, **Kühlt ab**
+beobachten und den vollständigen Nachlauf bis **Aus** abwarten. Anschließend
+**Heizung starten** drücken und **Startet → Heizbetrieb** mit dem Bedienpanel
+vergleichen. Im App-Mitschnitt dauerte der Nachlauf etwa 4:48 Minuten, der Start
+etwa 2:06 Minuten. Das sind beobachtete Zeiten eines Ablaufs und keine Timerwerte.
 
 ## Entwicklung und Nachweise
 
@@ -111,8 +143,9 @@ Zeitstempel.
 - [ ] Wiederverbindung und längeren Betrieb mit Proxy testen.
 - [x] Anzeige aller Stufen 1–10 prüfen.
 - [x] Testregler 3 → 4 → 3 in Home Assistant prüfen.
-- [ ] Zusätzliche Schreibstufen 1–2 und 5–10 live prüfen.
-- [ ] Start, Stopp und Abkühlzustände gezielt aufzeichnen.
+- [x] Alle Schreibstufen 1–10 und direkte Sprünge live prüfen.
+- [x] Start, Stopp und Abkühlzustände gezielt aufzeichnen.
+- [ ] Start/Stopp und Zustandsanzeige aus Home Assistant live prüfen.
 - [ ] Temperaturen, Spannung und weitere Felder mit App-Werten abgleichen.
 
 ## Hintergrund und Lizenz
